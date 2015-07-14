@@ -1,0 +1,74 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+$script = <<SCRIPT
+echo "deb http://download.opensuse.org/repositories/home:/xtreemfs/xUbuntu_12.04 ./" >> /etc/apt/sources.list
+wget -q http://download.opensuse.org/repositories/home:/xtreemfs/xUbuntu_12.04/Release.key -O - | sudo apt-key add -
+apt-get update
+apt-get install -qy xtreemfs-client xtreemfs-server xtreemfs-tools
+gpasswd -a vagrant fuse
+SCRIPT
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.define "dir01", primary: true do |machine|
+    machine.vm.box = "precise64"
+    machine.vm.box_url = "http://files.vagrantup.com/precise64.box"
+    machine.vm.hostname = "dir01"
+    machine.vm.network :private_network, ip: "10.0.0.2",
+                       :netmask => "255.255.255.0"
+    machine.vm.provision "shell", inline: $script
+    machine.vm.network "forwarded_port", guest: 30638, host: 30638
+  end
+
+  config.vm.define "mrc01", primary: true do |machine|
+    machine.vm.box = "precise64"
+    machine.vm.box_url = "http://files.vagrantup.com/precise64.box"
+    machine.vm.hostname = "mrc01"
+    machine.vm.network :private_network, ip: "10.0.0.3",
+                       :netmask => "255.255.255.0"
+    machine.vm.provision "shell", inline: $script
+    machine.vm.network "forwarded_port", guest: 30636, host: 30636
+  end
+
+  config.vm.define "osd01", primary: true do |machine|
+    machine.vm.box = "precise64"
+    machine.vm.box_url = "http://files.vagrantup.com/precise64.box"
+    machine.vm.hostname = "osd01"
+    machine.vm.network :private_network, ip: "10.0.0.4",
+                       :netmask => "255.255.255.0"
+    machine.vm.provision "shell", inline: $script
+    machine.vm.network "forwarded_port", guest: 30640, host: 30640
+  end
+
+  config.vm.define "osd02", primary: true do |machine|
+    machine.vm.box = "precise64"
+    machine.vm.box_url = "http://files.vagrantup.com/precise64.box"
+    machine.vm.hostname = "osd02"
+    machine.vm.network :private_network, ip: "10.0.0.5",
+                       :netmask => "255.255.255.0"
+    machine.vm.provision "shell", inline: $script
+    machine.vm.network "forwarded_port", guest: 30640, host: 30642
+  end
+
+  config.vm.define "osd03", primary: true do |machine|
+    machine.vm.box = "precise64"
+    machine.vm.box_url = "http://files.vagrantup.com/precise64.box"
+    machine.vm.hostname = "osd03"
+    machine.vm.network :private_network, ip: "10.0.0.6",
+                       :netmask => "255.255.255.0"
+    machine.vm.provision "shell", inline: $script
+    machine.vm.network "forwarded_port", guest: 30640, host: 30644
+  end
+
+  config.vm.define "client01", primary: true do |machine|
+    machine.vm.box = "precise64"
+    machine.vm.box_url = "http://files.vagrantup.com/precise64.box"
+    machine.vm.hostname = "client01"
+    machine.vm.network :private_network, ip: "10.0.0.7",
+                       :netmask => "255.255.255.0"
+    machine.vm.provision "shell", inline: $script
+  end
+end
